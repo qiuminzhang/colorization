@@ -1,4 +1,5 @@
 # Before run this file, please follow Readme.md to download required model files.
+# Usage example: python3 encapsulation_image.py --input greyscaleImage.png
 
 import numpy as np
 import cv2 as cv
