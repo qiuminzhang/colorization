@@ -55,7 +55,7 @@ def specify_and_read_model():
 
 def populate_cluster_centers(pts_in_hull, net):
     """
-    Populate cluster centers as 1x1 convolution kernel
+    Assign 1×1 kernels corresponding to each of the 313 bin centers and assign them to the corresponding layer in the network
     :param pts_in_hull: Original readed pts_in_hull file
     :param net: Original readed network
     :return: the network
