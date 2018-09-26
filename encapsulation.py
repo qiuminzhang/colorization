@@ -1,3 +1,5 @@
+# Before run this file, please follow Readme.md to download required model files.
+
 import numpy as np
 import cv2 as cv
 import argparse
@@ -6,7 +8,7 @@ import os.path
 
 def read_single_input():
     """
-    :return: An image or a video
+    :return: An image
     """
     parser = argparse.ArgumentParser(description='Colorize GreyScale Image')
     parser.add_argument('--input', help='Path to image.')
@@ -55,7 +57,8 @@ def specify_and_read_model():
 
 def populate_cluster_centers(pts_in_hull, net):
     """
-    Assign 1×1 kernels corresponding to each of the 313 bin centers and assign them to the corresponding layer in the network
+    Assign 1×1 kernels corresponding to each of the 313 bin centers and assign them to the corresponding layer
+    in the network. And add a scaling layer with a non-zero value.
     :param pts_in_hull: Original readed pts_in_hull file
     :param net: Original readed network
     :return: the network
@@ -79,8 +82,8 @@ def cvt_color_2_lab(frame):
 
 def pull_out_L_channel(img_lab):
     """
-    The grayscale image can be thought as the L-channel of the image in the LAB color space (lack of A/B channels). 
-    We take L-channel as model input. 
+    The grayscale image can be thought as the L-channel of the image in the LAB color space (lack of A/B channels).
+    We take L-channel as the model input.
     :param img_lab: Frame in LAB color space
     :return: Lightness channel
     """
@@ -99,7 +102,7 @@ def resize_as_network_input_size(img_l, W_in, H_in):
     return img_l_rs
 
 
-def mean_substract(img_l_rs):
+def mean_subtraction(img_l_rs):
     img_l_rs -= 50
     return img_l_rs
 
@@ -143,7 +146,31 @@ def save_output(img_bgr_out, args):
     outputFile = args.input[:-4] + '_colorized.png'  # save
     # outputFile = args.input[:-4]+'_norebal_colorized.png'  # save
     cv.imwrite(outputFile, (img_bgr_out * 255).astype(np.uint8))
+    print('Colorized image saved as ' + outputFile)
+    print('Done !!!')
+
+
+def main():
+    # Data preprocessing
+    frame, args = read_single_input()
+    img_lab = cvt_color_2_lab(frame)
+    img_l = pull_out_L_channel(img_lab)
+    img_l_rs = resize_as_network_input_size(img_l, 224, 224)
+    img_l_rs = mean_subtraction(img_l_rs)
+
+    # Model and file import and setup
+    pts_in_hull = load_npy_file()
+    net = specify_and_read_model()
+    net = populate_cluster_centers(pts_in_hull, net)
+
+    # Run net forward
+    ab_dec = run_caffe_net_forward(img_l_rs, net)
+
+    # Scale the image back and merge three channels
+    ab_dec_us = resize_as_original_size(frame, ab_dec)
+    img_bgr_out = concatenate_channels(img_l, ab_dec_us)
+    save_output(img_bgr_out, args)
 
 
 if __name__ == "__main__":
-    pass
+    main()
