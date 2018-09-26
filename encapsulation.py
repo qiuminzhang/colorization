@@ -55,7 +55,7 @@ def specify_and_read_model():
 
 def populate_cluster_centers(pts_in_hull, net):
     """
-        Populate cluster centers as 1x1 convolution kernel
+    Populate cluster centers as 1x1 convolution kernel
     :param pts_in_hull: Original readed pts_in_hull file
     :param net: Original readed network
     :return: the network
@@ -79,7 +79,8 @@ def cvt_color_2_lab(frame):
 
 def pull_out_L_channel(img_lab):
     """
-    Since the image can be thought as the L-channel of the image in the LAB color space,
+    The grayscale image can be thought as the L-channel of the image in the LAB color space (lack of A/B channels). 
+    We take L-channel as model input. 
     :param img_lab: Frame in LAB color space
     :return: Lightness channel
     """
