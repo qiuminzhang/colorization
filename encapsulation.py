@@ -149,10 +149,12 @@ def save_output(img_bgr_out, args):
     print('Colorized image saved as ' + outputFile)
     print('Done !!!')
 
-
+    
 def main():
-    # Data preprocessing
+    # Import image
     frame, args = read_single_input()
+
+    # Data preprocessing
     img_lab = cvt_color_2_lab(frame)
     img_l = pull_out_L_channel(img_lab)
     img_l_rs = resize_as_network_input_size(img_l, 224, 224)
@@ -169,6 +171,8 @@ def main():
     # Scale the image back and merge three channels
     ab_dec_us = resize_as_original_size(frame, ab_dec)
     img_bgr_out = concatenate_channels(img_l, ab_dec_us)
+
+    # Save image
     save_output(img_bgr_out, args)
 
 
